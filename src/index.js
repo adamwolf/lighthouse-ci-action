@@ -23,24 +23,26 @@ async function main() {
   core.endGroup() // Action config
 
   /******************************* 1. COLLECT ***********************************/
-  core.startGroup(`Collecting`)
-  const collectArgs = [`--numberOfRuns=${input.runs}`]
+  if (!input.skipCollect) {
+    core.startGroup(`Collecting`)
+    const collectArgs = [`--numberOfRuns=${input.runs}`]
 
-  if (input.staticDistDir) {
-    collectArgs.push(`--static-dist-dir=${input.staticDistDir}`)
-  } else if (input.urls) {
-    for (const url of input.urls) {
-      collectArgs.push(`--url=${url}`)
+    if (input.staticDistDir) {
+      collectArgs.push(`--static-dist-dir=${input.staticDistDir}`)
+    } else if (input.urls) {
+      for (const url of input.urls) {
+        collectArgs.push(`--url=${url}`)
+      }
     }
+    // else LHCI will panic with a non-zero exit code...
+
+    if (input.configPath) collectArgs.push(`--config=${input.configPath}`)
+
+    const collectStatus = runChildCommand('collect', collectArgs)
+    if (collectStatus !== 0) throw new Error(`LHCI 'collect' has encountered a problem.`)
+
+    core.endGroup() // Collecting
   }
-  // else LHCI will panic with a non-zero exit code...
-
-  if (input.configPath) collectArgs.push(`--config=${input.configPath}`)
-
-  const collectStatus = runChildCommand('collect', collectArgs)
-  if (collectStatus !== 0) throw new Error(`LHCI 'collect' has encountered a problem.`)
-
-  core.endGroup() // Collecting
 
   /******************************* 2. ASSERT ************************************/
   if (input.budgetPath || hasAssertConfig(input.configPath)) {

@@ -66,6 +66,7 @@ exports.getInput = function getInputArgs() {
     urls,
     runs: core.getInput('runs') ? parseInt(core.getInput('runs'), 10) : numberOfRuns || 1, // `runs`, check config, and fallback to 1
     staticDistDir,
+    skipCollect: core.getInput('skipCollect') === 'true' ? true : false, // not perfect, we should think about parse issues above...
     // assert
     budgetPath: core.getInput('budgetPath') || '',
     configPath,
